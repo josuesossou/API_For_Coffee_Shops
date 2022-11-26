@@ -31,11 +31,10 @@ export default class Init {
     static role_arn
     static credentials
 
-    static bucketName = "coffee-app-bucket" // not changing
-    static sqsName = "coffee-app-sqs" // not changing
-    static lambdaFuncName = "coffee-app-func" // not changing
-    static dynamoTableName = 'Coffee-app-table' // not changing
-
+    static bucketName = "coffee-shop-app-bucket" // not changing
+    static sqsName = "coffee-shop-app-sqs" // not changing
+    static lambdaFuncName = "coffee-shop-app-func" // not changing
+    static dynamoTableName = 'Coffee-shop-app-table' // not changing
 
     static eventArn = "" //dynamic set in set up
     static sqsURL = ""
