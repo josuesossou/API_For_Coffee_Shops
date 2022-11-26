@@ -1,5 +1,5 @@
 // Import required AWS SDK clients and commands for Node.js
-import { SendMessageCommand } from  "@aws-sdk/client-sqs";
+import { SendMessageCommand, GetQueueUrlCommand } from  "@aws-sdk/client-sqs";
 import Init from "./init.js";
 // import { sqsClient } from  "./libs/sqsClient.js";
 
@@ -46,14 +46,16 @@ export const sendData = async ({storeName, storeImage, storeRating, storeComment
   }
 }
 
-// var params = {
-//   QueueName: 'SQS_QUEUE_NAME'
-// };
+export const checkSQS = async () => {
+  var params = {
+    QueueName: Init.sqsName
+  };
 
-// sqs.getQueueUrl(params, function(err, data) {
-//   if (err) {
-//     console.log("Error", err);
-//   } else {
-//     console.log("Success", data.QueueUrl);
-//   }
-// });
+  try {
+    const data = Init.sqs.send(new GetQueueUrlCommand(params));
+    // Init.sqsURL = data.QueueUrl
+    return data.QueueUrl
+  } catch (error) {
+    return false
+  }
+}

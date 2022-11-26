@@ -12,7 +12,7 @@ import fs from 'fs'
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
-const setLambda = async () => {
+const setLambda = async (res) => {
     const s3c = Init.s3Client
     const lambda = Init.lambda
     const sqs = Init.sqs
@@ -54,9 +54,10 @@ const setLambda = async () => {
         )
 
         console.log("CREATE BUCKET WORKS!!!!!!!!!!!!!!!!!!!!!!!!!!")
+        res.json({ msg: 's3 bucket created', status: 200 })
     } catch (error) {
         console.log("FAILED CREATING A BUCKET**********************", error)
-        // return Promise.reject(error)
+        res.json({ msg: 's3 bucket failed', status: 500 })
     }
 
     // uploading zip file to s3 bucket
@@ -71,28 +72,30 @@ const setLambda = async () => {
             })
         )
         console.log("UPLOADING ZIP TO A BUCKET WORKS!!!!!!!!!!!!!!!!!!!!!!!!!!")
-        
+        res.json({ msg: 'function zip uploaded', status: 200 })
     } catch (error) {
         console.log("FAILED UPLOADING A FILE TO A BUCKET**********************", error)
-        // return Promise.reject(error)
+        res.json({ msg: 'function zip file upload failed', status: 500 })
     }
 
     // uploading lambda function
     try {
         await lambda.send(new CreateFunctionCommand(lambdFuncParams));
         console.log("UPLOADING LAMBDA FUNCTION WORKS!!!!!!!!!!!!!!!!!!!!!!!!!!")
+        res.json({ msg: 'lambda function created', status: 200 })
     } catch (error) {
         console.log("FAILED CREATING A LAMBDA FUNCTION**********************", error)
-        // return Promise.reject(error)
+        res.json({ msg: 'lambda function failed', status: 500 })
     }
 
     // creating a dynamo table
     try {
         await dynamo.send(new CreateTableCommand(dynamoParams));
         console.log("CREATING DYNAMO TABLE WORKS !!!!!!!!!!!!!!!!!!!!!!!!!!")
+        res.json({ msg: 'dynamo table created', status: 200 })
     } catch (error) {
         console.log("FAILED CREATING A DYNAMO TABLE **********************", error)
-        // return Promise.reject(error)
+        res.json({ msg: 'dynamo table failed', status: 500 })
     }
 
     try {
@@ -104,9 +107,10 @@ const setLambda = async () => {
         Init.sqsURL = sqsData.QueueUrl
 
         console.log("CREATING SQS WORKS!!!!!!!!!!!!!!!!!!!!!!!!!!")
+        res.json({ msg: 'sqs queue created', status: 200 })
     } catch (error) {
         console.log("FAILED CREATING SQS QUEUE **********************", error)
-        // return Promise.reject(error)
+        res.json({ msg: 'sqs queue failed', status: 500 })
     }
 
     try {
@@ -117,10 +121,11 @@ const setLambda = async () => {
             Enabled: true,
         }
         await lambda.send(new CreateEventSourceMappingCommand(sourceMapParams))
-        console.log("LAMBDA EVEN SOURCE MAPPING WORKS!!!!!!!!!!!!!!!!!!!!!!!!!!")
+        console.log("LAMBDA EVENT SOURCE MAPPING WORKS!!!!!!!!!!!!!!!!!!!!!!!!!!")
+        res.json({ msg: 'lambda event source created', status: 200 })
     } catch (error) {
         console.log("FAILED TO SET UP LAMBDA EVENT MAPPING**********************", error)
-        // return Promise.reject(error)
+        res.json({ msg: 'lambda event source failed', status: 500 })
     }
 }
 

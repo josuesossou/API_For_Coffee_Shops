@@ -2,6 +2,7 @@ import { LambdaClient} from "@aws-sdk/client-lambda";
 import { S3Client, S3 } from "@aws-sdk/client-s3";
 import { SQSClient  } from "@aws-sdk/client-sqs";
 import { DynamoDBClient } from "@aws-sdk/client-dynamodb";
+import { checkSQS } from "./sqs";
 
 export default class Init {
     constructor(iamCredentials, region, role_arn) {
@@ -43,6 +44,10 @@ export default class Init {
         Init.eventArn = arn
     }
 
+    setSqsURL (url) {
+        Init.sqsURL = url
+    }
+
     initLambda (credentials, region) {
         Init.lambda = new LambdaClient({
             region: region,
@@ -81,5 +86,10 @@ export default class Init {
 
 
 export const initialise = (iamCredentials, region, role_arn) => { 
-    new Init(iamCredentials, region, role_arn) 
+    const instance = new Init(iamCredentials, region, role_arn) 
+    checkSQS().then(url => {
+        if (url) {
+            instance.setSqsURL(url)
+        }
+    })
 }

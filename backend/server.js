@@ -3,6 +3,7 @@ import cors from 'cors'
 import { initialise } from './services/init.js'
 import setLambda from './services/lambda.js'
 import { sendData } from './services/sqs.js'
+import { credential } from './index.js'
 // var express = require('express')
 // var cors = require('cors')
 
@@ -24,20 +25,13 @@ app.post('/init', (req, res,) => {
   // const { region, role_arn, credential } = req.body
   const role_arn = 'arn:aws:iam::364090414621:role/Lambda_Role_Test_CofeeApp'
   const region = 'us-east-1'
-  const credential = {
-    accessKeyId: 'AKIAVJRL22YO4AP4IEWW',
-    secretAccessKey: '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'
-  }
-  // if (!Init.initStatus) {
-    initialise(credential, region, role_arn)
-    
-  // }
 
-  res.json({ msg: 'Setup might work :(' })
+  initialise(credential, region, role_arn)
+  res.json({ msg: 'Services are ready to be used. If it is your first time, make sure to run the setup' })
 })
 
 app.post('/setup', (req, res) => {
-  setLambda()
+  setLambda(res)
 })
 
 app.post('/addcoffeeshop', (req, res) => {
@@ -47,7 +41,7 @@ app.post('/addcoffeeshop', (req, res) => {
     storeRating: 3,
     storeComment: 'it is alright'
   })
-  res.json({ msg: 'add might work :/' })
+  res.json({ msg: 'uploaded data to the queue' })
 })
 
 app.get('/', function (req, res, next) {

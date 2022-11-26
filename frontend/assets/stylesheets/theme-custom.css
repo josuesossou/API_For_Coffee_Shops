@@ -1,0 +1,47 @@
+/* Add here all your CSS customizations */
+.page-header h2 {
+    border-bottom-color: #282C38;
+}
+.sidebar-toggle {
+    background-color: #ffcc00;
+}
+
+body .btn-primary {
+    color: #282C38;
+    text-shadow: rgb(0 0 0 / 25%) 0px -1px 0px;
+    border-color: #ffcc00;
+    background-color: #ffcc00;
+    transition: all .3s;
+}
+body.btn {
+    transition: all .3s;
+}
+
+body .btn-primary:hover {
+    color: #282C38;
+    border-color: #fad74b;
+    background-color: #fad74b;
+}
+
+.panel-group .panel-accordion .panel-heading a {
+    color: #282C38;
+}
+
+#flashcard-wrapper {
+    position: fixed;
+    z-index: 5000;
+    width: 40vw;
+    padding: 1em 3em;
+    height: auto;
+    border: 2px solid #ffcc00;
+    background-color: white;
+    color: #282C38;
+    box-shadow: 0 6px 10px -3px rgb(0 0 0 / 30%);
+    display: none;
+    top: 7vh;
+    left: 50%;
+    transform: translateX(-50%);
+}
+input.secureInput {
+    -webkit-text-security: disc;
+}
