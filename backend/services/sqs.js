@@ -1,24 +1,19 @@
 // Import required AWS SDK clients and commands for Node.js
-import { SendMessageCommand, GetQueueUrlCommand } from  "@aws-sdk/client-sqs";
+import { SendMessageCommand } from  "@aws-sdk/client-sqs";
 import Init from "./init.js";
-// import { sqsClient } from  "./libs/sqsClient.js";
 
 export const sendData = async ({storeName, storeImage, storeRating, storeComment}) => {
   // Set the parameters
   const params = {
-    DelaySeconds: 10,
+    DelaySeconds: 5,
     MessageAttributes: {
-      StoreID: {
-        DataType: "String",
-        StringValue: storeName,
-      },
       StoreName: {
         DataType: "String",
         StringValue: storeName,
       },
       StoreImage: {
         DataType: "String",
-        StringValue: storeImage,
+        StringValue: storeImage || 'no image',
       },
       StoreRating: {
         DataType: "Number",
@@ -37,25 +32,11 @@ export const sendData = async ({storeName, storeImage, storeRating, storeComment
   };
 
   try {
-    console.log(Init.sqsURL, "URLLL*********")
     const data = await Init.sqs.send(new SendMessageCommand(params));
     console.log("Success, message sent. MessageID:", data.MessageId);
-    return data; // For unit tests.
+    return Promise.resolve(storeName); // For unit tests.
   } catch (err) {
     console.log("Error", err);
-  }
-}
-
-export const checkSQS = async () => {
-  var params = {
-    QueueName: Init.sqsName
-  };
-
-  try {
-    const data = Init.sqs.send(new GetQueueUrlCommand(params));
-    // Init.sqsURL = data.QueueUrl
-    return data.QueueUrl
-  } catch (error) {
-    return false
+    return Promise.reject('Failed to send data')
   }
 }

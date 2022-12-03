@@ -2,3 +2,4 @@ backend/package-lock.json
 backend/node_modules
 backend/index.js
 backend/lambdaFunc
+backend/services/lambda.js

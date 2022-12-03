@@ -1,177 +1,7 @@
-
-"use strict";
-// Strings
-const S3_NOT_INIT_TEXT = 'please initialize s3 credentials on the settings page'
-const IAM_TEXT = 'iam'
-const COGNITOPOOL_TEXT = 'cognitopool'
-
-
-// Global Data
-let SETTING_CREDENTIALS = {
-  bucketName: '',
-  region: '',
-  credentials: {
-    accessKeyId: '',
-    secretAccessKey: '',
-    expiration: null,
-    sessionToken: null
-  },
-  poolId: ''
-}
-// window.s3CredentialsStatus = NOT_INIT_STATUS
-// window.whichCredential = ''
-
-/** helper functions **/
+ 
 const getElementById = (elementId) => {
   return document.getElementById(elementId)
 }
-
-// loadCredentials is only called on the dashboard page
-const loadCredentials = async () => {
-  const settingCredentials = localStorage.getItem('settingCredentials')
-  if (!settingCredentials) return 
-
-  SETTING_CREDENTIALS = JSON.parse(settingCredentials)
-  if (!SETTING_CREDENTIALS.region || !SETTING_CREDENTIALS.bucketName) return
-
-  if (!whichCredential) {
-    try {
-      await aws_init(
-        SETTING_CREDENTIALS.region.toLocaleLowerCase(), 
-        SETTING_CREDENTIALS.bucketName,
-        {iamCredentials: SETTING_CREDENTIALS.credentials})
-
-    } catch (error) {
-      throw error
-    }
-    return;
-  }
-  switch (whichCredential) {
-    case IAM_TEXT:
-      try {
-        await aws_init(
-          SETTING_CREDENTIALS.region.toLocaleLowerCase(), 
-          SETTING_CREDENTIALS.bucketName,
-          {iamCredentials: SETTING_CREDENTIALS.credentials})
-  
-      } catch (error) {
-        throw error
-      }
-      return;
-    case COGNITOPOOL_TEXT:
-      try {
-        await aws_init(
-          SETTING_CREDENTIALS.region.toLocaleLowerCase(), 
-          SETTING_CREDENTIALS.bucketName,
-          {withPoolId:true, poolID: SETTING_CREDENTIALS.poolId})
-  
-      } catch (error) {
-        throw error
-      }
-      return;
-    default:
-      try {
-        await aws_init(
-          SETTING_CREDENTIALS.region.toLocaleLowerCase(), 
-          SETTING_CREDENTIALS.bucketName,
-          {iamCredentials: SETTING_CREDENTIALS.credentials})
-  
-      } catch (error) {
-        throw error
-      }
-      return;
-  }
-}
-
-const checkesInitStatus = ({isSettingsPage=false, showFlash=false}) => {
-  statusElement(
-    whichCredential, s3Connected, 
-    {isSettingsPage, showFlash})
-}
-/*** End of helpsers */
-
-/***  init aws s3 */
-const initWithIAM = async () => {
-  let inputBucketName = getElementById('inputIAMBucketName')
-  let inputRegion = getElementById('inputIAMRegion')
-  let inputAccessKey = getElementById('inputIAMAccessKey')
-  let inputSecretKey = getElementById('inputIAMSecretKey')
-
-  if (!inputBucketName.value || 
-    !inputRegion.value || 
-    !inputAccessKey.value ||
-    !inputSecretKey.value
-  ) return showFlashMessage('1 or more fields are missing')
-
-  if (!inputBucketName.value.trim() || 
-    !inputRegion.value.trim() || 
-    !inputAccessKey.value.trim() ||
-    !inputSecretKey.value.trim()
-  ) return showFlashMessage('1 or more fields are missing')
-
-  const credentials = {
-    accessKeyId: inputAccessKey.value.trim(),
-    secretAccessKey: inputSecretKey.value.trim(),
-    expiration: null,
-    sessionToken: null
-  }
-
-  SETTING_CREDENTIALS = {
-    bucketName: inputBucketName.value.trim(),
-    region: inputRegion.value.trim(),
-    credentials,
-    poolId: SETTING_CREDENTIALS.poolId
-  }
- 
-  try {
-    await aws_init(
-      SETTING_CREDENTIALS.region.toLocaleLowerCase(), 
-      SETTING_CREDENTIALS.bucketName,
-      {iamCredentials: SETTING_CREDENTIALS.credentials})
-
-      checkesInitStatus({ isSettingsPage: true, showFlash: true })
-  } catch (error) {
-    console.log(error)
-    checkesInitStatus({ isSettingsPage: true, showFlash: true })
-  }
-}
-
-const initWithPool = async () => {
-  const inputBucketName = getElementById('inputPoolBucketName')
-  const inputRegion = getElementById('inputPoolRegion')
-  const inputPoolID = getElementById('inputPoolID')
-
-  if (!inputBucketName.value || 
-    !inputRegion.value || 
-    !inputPoolID.value
-  ) return showFlashMessage('1 or more fields are missing')
-
-  if (!inputBucketName.value.trim() || 
-    !inputRegion.value.trim() || 
-    !inputPoolID.value.trim()
-  ) return showFlashMessage('1 or more fields are missing')
-
-  SETTING_CREDENTIALS = {
-    bucketName: inputBucketName.value.trim(),
-    region: inputRegion.value.trim(),
-    credentials: SETTING_CREDENTIALS.credentials,
-    poolId: inputPoolID.value.trim()
-  }
-
-  try {
-    await aws_init(
-      SETTING_CREDENTIALS.region.toLocaleLowerCase(), 
-      SETTING_CREDENTIALS.bucketName,
-      {withPoolId:true, poolID: SETTING_CREDENTIALS.poolId})
-    checkesInitStatus({ isSettingsPage: true, showFlash: true })
-  } catch (error) {
-    checkesInitStatus({ isSettingsPage: true, showFlash: true })
-    console.log(error)
-  }
-}
-/***  End of initialization */
-
-/** UI maipulations */
 
 const showFlashMessage = (message) => {
   const flashMessageEle = getElementById('flashcard-wrapper')
@@ -185,190 +15,233 @@ const showFlashMessage = (message) => {
   }, 3000)
 }
 
-const statusElement = (
-  credentialType, s3IsConnected, 
-  {isSettingsPage=false, showFlash=false} = {}
-) => {
-  const statusElement = getElementById(`check-${credentialType}-credentials`)
+// API calls
+async function initialize({ region, accessKey, secretKey }) {
+  try {
+    const res = await fetch('http://localhost:3000/init', {
+      method: 'POST', 
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        region,
+        credential: {
+          accessKeyId: accessKey,
+          secretAccessKey: secretKey
+        }
+      }),
+    })
 
-  if (!s3IsConnected) {
-    if (showFlash) showFlashMessage('Failed to initialize')
-    if (isSettingsPage) {
-      statusElement.innerHTML = `
-        <button type="button" class="btn btn-danger">Failed To Initialize</button>
-     `
-      const credentialTypeText = credentialType === IAM_TEXT ? COGNITOPOOL_TEXT : IAM_TEXT
-      removeStatusElement(credentialTypeText)
-    }
-    return
+    const data = await res.json()
+    sessionStorage.setItem('isInited', JSON.stringify(data.initStatus))
+    sessionStorage.setItem('credentials', JSON.stringify({ 
+      region,
+      accessKey,
+      secretKey
+    }))
+  } catch (error) {
+    showFlashMessage(error)
   }
+}
 
-  if (showFlash) showFlashMessage('Successfully initialized')
-  if (isSettingsPage) {
-    statusElement.innerHTML = `
-      <button type="button" class="btn btn-success">Initialize Successful <i class="ml-2 fa fa-gear"></i></button>
-    `
-    const credentialTypeText = credentialType === IAM_TEXT ? COGNITOPOOL_TEXT : IAM_TEXT
-    removeStatusElement(credentialTypeText)
+async function checkInitStatus() {
+  try {
+    const res = await fetch('http://localhost:3000/init-status')
+    const data = await res.json()
+  
+    sessionStorage.setItem('isInited', JSON.stringify(data.initStatus))
+  } catch (error) {
+    showFlashMessage(error)
   }
 }
 
-const removeStatusElement = (credentialType) => {
-  const statusElement = getElementById(`check-${credentialType}-credentials`)
-  statusElement.innerHTML = ''
-}
-
-/// save credentials to localstorage
-const saveIAMCredentials = () => {
-  // initialises S3 client with IAM credentials if S3 is not cennected using IAM credentials
-  if (!s3Connected || whichCredential === COGNITOPOOL_TEXT) {
-    initWithIAM()
-  }
-  localStorage.setItem('settingCredentials', JSON.stringify(SETTING_CREDENTIALS))
-  setSetting({isIAMDisabled: true, showIAM: true})
-  showFlashMessage("credentials were successfully saved")
-}
-
-const savePoolCredentials = () => {
-  // initialises S3 client with Cognito pool credentials if S3 is not cennected using Cognito pool credentials
-  if (!s3Connected || whichCredential === IAM_TEXT) {
-    initWithPool()
-  }
-
-  localStorage.setItem('settingCredentials', JSON.stringify(SETTING_CREDENTIALS))
-  setSetting({isIAMDisabled: true, showIAM: false})
-  showFlashMessage("credentials were successfully saved")
-}
-
-/// setting up credentials for both IAM and Cognito Pool
-const editIAMCredentials = () => {
-  setSetting({isIAMDisabled: false, showIAM: true}) // to show the Iam pannel
-}
-
-const editPoolCredentials = () => {
-  setSetting({isPoolDisabled: false, showIAM: false}) // to show the Pool pannel
-}
-
-/// sets the full credentials to show up in the text fields
-const setIAMSettingCredentials = () => {
-  const inputBucketName = getElementById('inputIAMBucketName')
-  const inputRegion = getElementById('inputIAMRegion')
+function setPreviousCredentials() {
   const inputAccessKey = getElementById('inputIAMAccessKey')
   const inputSecretKey = getElementById('inputIAMSecretKey')
+  const inputRegion = getElementById('inputIAMRegion')
 
-  inputRegion.value = SETTING_CREDENTIALS.region
-  inputBucketName.value = SETTING_CREDENTIALS.bucketName
-  inputAccessKey.value = SETTING_CREDENTIALS.credentials.accessKeyId
-  inputSecretKey.value = SETTING_CREDENTIALS.credentials.secretAccessKey
+  const credentials = JSON.parse(sessionStorage.getItem('credentials')) || false
+
+  if (credentials && inputAccessKey) {
+    const { region, accessKey, secretKey } = credentials
+    inputAccessKey.value = accessKey
+    inputSecretKey.value = secretKey
+    inputRegion.value = region
+  }
 }
 
-/// sets the full credentials to show up in the text fields
-const setPoolSettingCredentials = () => {
-  const inputBucketName = getElementById('inputPoolBucketName')
-  const inputRegion = getElementById('inputPoolRegion')
-  const inputPoolID = getElementById('inputPoolID')
+async function setUp() {
+  const inputAccessKey = getElementById('inputIAMAccessKey').value
+  const inputSecretKey = getElementById('inputIAMSecretKey').value
+  const inputRegion = getElementById('inputIAMRegion').value
+  const gearIcon = getElementById('setup-gear-icon')
+  const setupBtn = getElementById('setup-btn')
+  // add gearIcon annimation
+  gearIcon.classList.remove('hide-gear-icon')
+  gearIcon.classList.add('active-spin-animation')
+  setupBtn.setAttribute('disabled', true)
 
-  inputRegion.value = SETTING_CREDENTIALS.region
-  inputBucketName.value = SETTING_CREDENTIALS.bucketName
-  inputPoolID.value = SETTING_CREDENTIALS.poolId
-}
-/** End of UI maipulations */
+  if (
+    !inputAccessKey ||
+    !inputSecretKey ||
+    !inputRegion
+  ) {
+    // remove gear spin animation
+    gearIcon.classList.remove('active-spin-animation')
+    gearIcon.classList.add('hide-gear-icon')
+    setupBtn.removeAttribute('disabled')
+    return showFlashMessage('Please fill out all the text fields')
+  }
 
-/**** AWS S3 CRUD Operations */
-// list objects (Reading)
-const listObjects = async () => {
-  const objectListElement = getElementById("object-list")
+  const { region, accessKey, secretKey } = {
+    region: inputRegion,
+    accessKey: inputAccessKey,
+    secretKey: inputSecretKey
+  }
 
-  if (!s3Connected) {
-    const htmlTemplate = `
-    <p class='center'>
-      <i class="fa fa-warning"></i> ${S3_NOT_INIT_TEXT}
-    </p>
-    `;
-    objectListElement.innerHTML = htmlTemplate;
-    return
-  } 
+  await initialize({ region, accessKey, secretKey })
+  let isSetup = JSON.parse(sessionStorage.getItem('isSetup')) || false 
+
+  if (isSetup) {
+    // remove gear spin animation
+    gearIcon.classList.remove('active-spin-animation') 
+    gearIcon.classList.add('hide-gear-icon')
+    // setupBtn.setAttribute('disabled', false)
+    return setSetting()
+  }
 
   try {
-    const data = await s3.send(
-      new ListObjectsCommand({ Delimiter: '/', Bucket: bucketName,  })
-    );
+    const res = await fetch('http://localhost:3000/setup', { method: 'POST' })
+    const data = await res.json()
+    isSetup = true
 
-    if (!data.Contents || data.Contents.length === 0) {
-      const htmlTemplate = `
-      <p class='center'>
-        You do not have any object in this S3 bucket. Start adding objects to your S3 bucket by clicking the add button
-      </p>`;
-      objectListElement.innerHTML = htmlTemplate;
+    for (const res of data) {
+      if (res.status === 500) isSetup = false
+    }
+
+    console.log(data)
+
+    sessionStorage.setItem('setupData', JSON.stringify(data))
+    sessionStorage.setItem('isSetup', JSON.stringify(isSetup))
+  } catch (error) {
+    showFlashMessage(error)
+  }
+
+  // remove gear spin animation
+  gearIcon.classList.remove('active-spin-animation') 
+  gearIcon.classList.add('hide-gear-icon')
+  setSetting()
+}
+
+async function getCoffeeShops() {
+  try {
+    const res = await fetch('http://localhost:3000/get-shops')
+    const data = await res.json()
+  
+    return data.data.Items
+  } catch (error) {
+    showFlashMessage(error)
+    return []
+  }
+}
+
+async function addCoffeeShop() {
+  const storeName = getElementById('storename').value
+  const storeRating = getElementById('storerating').value
+  let storeImage = getElementById('storeimage').value
+  const storeComment = getElementById('comment').value
+
+  if (
+    !storeName ||
+    !storeRating ||
+    !storeComment 
+  ) {
+    return showFlashMessage('Please fill out all the required text fields')
+  }
+
+  storeImage = storeImage || ''
+
+  try {
+    const res = await fetch('http://localhost:3000/addcoffeeshop', { 
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ storeImage, storeName, storeRating, storeComment })
+    })
+  
+    await res.json()
+    showFlashMessage('You have added a new shop')
+  } catch (error) {
+    showFlashMessage(error)
+  }
+}
+
+function tryAgain() {
+  sessionStorage.removeItem('setupData')
+  setSetting()
+}
+
+async function confirmDeletingServices () {
+  if (!confirm(`This will reset your enviroment. 
+  All of your data and services created for this app will be deleted.
+  Are you sure you want to procceed?`)) return false
+
+  await deleteAWSServices()
+  return true
+}
+
+async function deleteAWSServices () {
+  let isSetup = JSON.parse(sessionStorage.getItem('isSetup')) || false 
+
+  if (!isSetup) {
+    return setSetting()
+  }
+
+  try {
+    const res = await fetch('http://localhost:3000/cleanup', { method: 'POST' })
+    const data = await res.json()
+    let success = true
+
+    for (const res of data) {
+      if (res.status === 500) {
+        success = false
+      }
+    }
+
+    if (success) {
+      console.log(data)
+      sessionStorage.removeItem('setupData')
+      sessionStorage.removeItem('isSetup')
+      
+      showFlashMessage('Successfully cleaned environment')
     } else {
-      data.Contents.map((content) => {
-        // const prefix = commonPrefix.Prefix;
-        // const objectName = decodeURIComponent(prefix.replace("/", ""));
-        const li = document.createElement('li')
-        li.innerHTML = `
-          <div><span>${content.Key}</span></div>
-          <div class="todo-actions">
-            <a class="todo-remove" onpointerup="deleteObject('${content.Key}')">
-              <button class="btn btn-danger" style="color: white"><i class="fa fa-times" ></i> Delete</button>
-            </a>
-          </div>
-          `;
-          objectListElement.appendChild(li)
-        });
-      }
-    } catch (err) {
-      const htmlTemplate = `
-      <p class='center'>
-        <i class="fa fa-warning"></i> There was an error listing your objects: ${err.message}
-      </p>
-      `;
-      objectListElement.innerHTML = htmlTemplate;
-      showFlashMessage();
+      showFlashMessage('Environment not cleaned properly')
     }
-  };
-  
-  // Add an object to an bucket (create)
-  const addObject = async () => {
-    if (!s3Connected) 
-      return showFlashMessage(S3_NOT_INIT_TEXT)
 
-    const files = document.getElementById("objectInput").files;
-    try {
-      const file = files[0];
-      const fileName = file.name;
-      const objectKey = fileName;
-      const uploadParams = {
-        Bucket: bucketName,
-        Key: objectKey,
-        Body: file
-      };
-      try {
-        await s3.send(new PutObjectCommand(uploadParams));
-        showFlashMessage(`Successfully uploaded ${fileName}.`);
-        setDashboard()
-      } catch (err) {
-        return showFlashMessage("There was an error uploading your file object: ", err.message);
-      }
-    } catch (err) {
-      if (!files.length) {
-        return showFlashMessage("Choose a file to upload first.");
-      }
-    }
-  };
-  
-  // Delete an object from the bucket (delete)
-  const deleteObject = async (objectKey) => {
-    if (!s3Connected) return showFlashMessage(S3_NOT_INIT_TEXT)
-      try {
-        const params = {
-          Bucket: bucketName,
-          Key: objectKey,
-          Quiet: true,
-        };
-        await s3.send(new DeleteObjectCommand(params));
-        setDashboard();
-        return showFlashMessage(`Successfully deleted ${objectKey}.`);
-      } catch (err) {
-        return showFlashMessage(`There was an error deleting ${objectKey}: ${err.message}`);
-      }
-  };
+    setSetting()
+  } catch (error) {
+    showFlashMessage(error)
+  }
+}
+
+async function deleteAndTryAgain() {
+  const confirmed = await confirmDeletingServices()
+  if (confirmed) {
+    tryAgain ()
+  }
+}
+
+function waitTimetryAgain (waitTime) {
+  const waitTimer = getElementById('wait-timer')
+  const tryAgain = getElementById('try-again')
+  const deleteAndTry = getElementById('delete-try-again')
+
+  if (waitTime < 0) {
+    tryAgain.removeAttribute('disabled')
+    deleteAndTry.removeAttribute('disabled')
+  } else {
+    waitTimer.innerHTML = `<span>${waitTime}</span>`
+    setTimeout(waitTimetryAgain.bind(this, waitTime-1), 1500)
+  }
+}

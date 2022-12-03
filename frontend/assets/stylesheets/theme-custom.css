@@ -45,3 +45,22 @@ body .btn-primary:hover {
 input.secureInput {
     -webkit-text-security: disc;
 }
+
+.hide-gear-icon {
+    display: none;
+}
+.active-spin-animation {
+    animation: spin 1s ease-in 1s infinite alternate;
+    /* transition: all ease-in-out 2s; */
+    transform: rotate(30deg);
+    display: inline-block;
+}
+
+@keyframes spin {
+    from {
+        transform: rotate(0deg);
+    }
+    to {
+        transform: rotate(300deg);
+    }
+}

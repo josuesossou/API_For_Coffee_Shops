@@ -1,53 +1,101 @@
 import express from 'express'
 import cors from 'cors'
 import { initialise } from './services/init.js'
-import setLambda from './services/lambda.js'
 import { sendData } from './services/sqs.js'
-import { credential } from './index.js'
-// var express = require('express')
-// var cors = require('cors')
+import { checkInitStatus, cleanServicesBeforeExist } from './services/helpers.js'
+import { getShopsData } from './services/dynamo.js'
+import { clean, setup } from './services/actions.js'
 
 const app = express()
 const PORT = 3000
 
 var corsOptions = {
-  origin: 'http://example.com',
+  origin: '*',
   optionsSuccessStatus: 200 // some legacy browsers (IE11, various SmartTVs) choke on 204
 }
 
 app.use(cors(corsOptions))
+app.use(express.json())  // for parsing application/json
 
 // app.get('/products/:id', function (req, res, next) {
 //   res.json({msg: 'This is CORS-enabled for all origins!'})
 // })
 
-app.post('/init', (req, res,) => {
-  // const { region, role_arn, credential } = req.body
-  const role_arn = 'arn:aws:iam::364090414621:role/Lambda_Role_Test_CofeeApp'
-  const region = 'us-east-1'
+app.post('/init', (req, res) => {
+  const { region, credential } = req.body
 
-  initialise(credential, region, role_arn)
-  res.json({ msg: 'Services are ready to be used. If it is your first time, make sure to run the setup' })
+  if (!checkInitStatus()) {
+    initialise(credential, region, res)
+  }
+
+  res.json({ 
+    initStatus: checkInitStatus(),
+    msg: 'Successfully Initialized' 
+  })
 })
 
 app.post('/setup', (req, res) => {
-  setLambda(res)
+  setup()
+  .then(statuses => {
+    res.json(statuses)
+  })
+})
+
+app.post('/cleanup', (req, res) => {
+  clean()
+  .then(statuses => {
+    res.json(statuses)
+  })
 })
 
 app.post('/addcoffeeshop', (req, res) => {
+  let { storeImage, storeName, storeRating, storeComment } = req.body
+  if (!storeImage) {
+    storeImage = ''
+  }
+  
   sendData({
-    storeImage:  `https://static01.nyt.com/images/2022/10/14/arts/13till-review/merlin_214440696_9ae2e84d-c950-4f84-b7ab-625d74a257d0-videoSixteenByNine3000.jpg`,
-    storeName: 'Starbucks',
-    storeRating: 3,
-    storeComment: 'it is alright'
+    storeImage,
+    storeName,
+    storeRating,
+    storeComment
+  }).then(name => {
+    res.json({ msg: `Uploaded ${name} to the queue` })
+  }).catch(msg => {
+    res.json({ msg })
   })
-  res.json({ msg: 'uploaded data to the queue' })
 })
 
-app.get('/', function (req, res, next) {
+app.get('/init-status', (req, res) => {
+  res.json({ initStatus: checkInitStatus() })
+})
+
+app.get('/get-shops', (req, res) => {
+  getShopsData().then(data => {
+    res.json({ data })
+  })
+  
+})
+
+app.get('/', function (req, res) {
   res.json({ msg: 'This is CORS-enabled for all origins!' })
 })
 
 app.listen(PORT, function () {
   console.log('CORS-enabled web server listening on port 3000')
+  runBeforeExiting()
 })
+
+// checking when server is being closed or shutdown
+const runBeforeExiting = () => {
+  const exitSignals = ['exit', 'SIGINT', 'SIGUSR1', 'SIGUSR2', 'uncaughtException'];
+
+  for (const signal of exitSignals) {
+    process.on(signal, async () => {
+      console.log(' Deleting AWS Services That Were Used ...');
+      await cleanServicesBeforeExist()
+      console.log(' Evironment Cleaned ...');
+      process.exit();
+    });
+  }
+}

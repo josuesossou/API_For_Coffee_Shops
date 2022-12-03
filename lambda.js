@@ -12,8 +12,8 @@ import fs from 'fs'
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
-const setLambda = async (res) => {
-    const s3c = Init.s3Client
+const setLambda = async () => {
+    const s3 = Init.s3
     const lambda = Init.lambda
     const sqs = Init.sqs
     const dynamo = Init.dynamo
@@ -26,6 +26,8 @@ const setLambda = async (res) => {
 
     const objectKey = "coffeelambdafunc.zip"
 
+    const status = []
+
     const bucketParams = { Bucket: bucketName }
     const sqsparams = {
         QueueName: sqsName, //SQS_QUEUE_URL
@@ -34,37 +36,25 @@ const setLambda = async (res) => {
           MessageRetentionPeriod: "86400", // Number of seconds delay.
         },
     };
-    const lambdFuncParams = {
-        Code: {
-          S3Bucket: bucketName, // BUCKET_NAME
-          S3Key: objectKey, // ZIP_FILE_NAME
-        },
-        FunctionName: lambdaFuncName,
-        Handler: "index.handler",
-        Role: role_arn, // IAM_ROLE_ARN; e.g., arn:aws:iam::650138640062:role/v3-lambda-tutorial-lambda-role
-        Runtime: "nodejs16.x",
-        Description: "gets sqs records and put them in dynamodb",
-    }
-    
 
     // creating a new s3 bucket
     try {
-        await s3c.send(
+        await s3.send(
             new CreateBucketCommand(bucketParams)
         )
 
         console.log("CREATE BUCKET WORKS!!!!!!!!!!!!!!!!!!!!!!!!!!")
-        res.json({ msg: 's3 bucket created', status: 200 })
+        status.push({ msg: 's3 bucket created', status: 200 })
     } catch (error) {
         console.log("FAILED CREATING A BUCKET**********************", error)
-        res.json({ msg: 's3 bucket failed', status: 500 })
+        status.push({ msg: 's3 bucket failed', status: 500 })
     }
 
     // uploading zip file to s3 bucket
     try {
         const fileStream = fs.createReadStream(__dirname + "/coffeelambdafunc.zip");
 
-        await s3c.send(
+        await s3.send(
             new UploadPartCommand({
                 Bucket: bucketName,
                 Key: objectKey,
@@ -72,30 +62,45 @@ const setLambda = async (res) => {
             })
         )
         console.log("UPLOADING ZIP TO A BUCKET WORKS!!!!!!!!!!!!!!!!!!!!!!!!!!")
-        res.json({ msg: 'function zip uploaded', status: 200 })
+        status.push({ msg: 'function zip uploaded', status: 200 })
     } catch (error) {
-        console.log("FAILED UPLOADING A FILE TO A BUCKET**********************", error)
-        res.json({ msg: 'function zip file upload failed', status: 500 })
+        console.log("FAILED UPLOADING A FILE TO A BUCKET**********************\n", error)
+        status.push({ msg: 'function zip file upload failed', status: 500 })
     }
 
     // uploading lambda function
     try {
+        const lambdFuncParams = {
+            Code: {
+              S3Bucket: bucketName, // BUCKET_NAME
+              S3Key: objectKey, // ZIP_FILE_NAME
+            },
+            FunctionName: lambdaFuncName,
+            Handler: "index.handler",
+            Role: Init.role_arn, // IAM_ROLE_ARN; e.g., arn:aws:iam::650138640062:role/v3-lambda-tutorial-lambda-role
+            Runtime: "nodejs16.x",
+            Description: "gets sqs records and put them in dynamodb",
+        }
+
         await lambda.send(new CreateFunctionCommand(lambdFuncParams));
         console.log("UPLOADING LAMBDA FUNCTION WORKS!!!!!!!!!!!!!!!!!!!!!!!!!!")
-        res.json({ msg: 'lambda function created', status: 200 })
+        status.push({ msg: 'lambda function created', status: 200 })
     } catch (error) {
-        console.log("FAILED CREATING A LAMBDA FUNCTION**********************", error)
-        res.json({ msg: 'lambda function failed', status: 500 })
+        console.log("FAILED CREATING LAMBDA FUNCTION**********************\n", error)
+        if (error instanceof ResourceConflictException) {
+            console.log('************ YAY ResourceConflictException ***********\n')
+        }
+        status.push({ msg: 'lambda function failed', status: 500 })
     }
 
     // creating a dynamo table
     try {
         await dynamo.send(new CreateTableCommand(dynamoParams));
-        console.log("CREATING DYNAMO TABLE WORKS !!!!!!!!!!!!!!!!!!!!!!!!!!")
-        res.json({ msg: 'dynamo table created', status: 200 })
+        console.log("!!!!!!!!!!!!! CREATING DYNAMO TABLE WORKS !!!!!!!!!!!!!")
+        status.push({ msg: 'dynamo table created', status: 200 })
     } catch (error) {
-        console.log("FAILED CREATING A DYNAMO TABLE **********************", error)
-        res.json({ msg: 'dynamo table failed', status: 500 })
+        console.log("FAILED CREATING A DYNAMO TABLE **********************\n", error)
+        status.push({ msg: 'dynamo table failed', status: 500 })
     }
 
     try {
@@ -107,10 +112,10 @@ const setLambda = async (res) => {
         Init.sqsURL = sqsData.QueueUrl
 
         console.log("CREATING SQS WORKS!!!!!!!!!!!!!!!!!!!!!!!!!!")
-        res.json({ msg: 'sqs queue created', status: 200 })
+        status.push({ msg: 'sqs queue created', status: 200 })
     } catch (error) {
-        console.log("FAILED CREATING SQS QUEUE **********************", error)
-        res.json({ msg: 'sqs queue failed', status: 500 })
+        console.log("FAILED CREATING SQS QUEUE **********************\n", error)
+        status.push({ msg: 'sqs queue failed', status: 500 })
     }
 
     try {
@@ -122,11 +127,13 @@ const setLambda = async (res) => {
         }
         await lambda.send(new CreateEventSourceMappingCommand(sourceMapParams))
         console.log("LAMBDA EVENT SOURCE MAPPING WORKS!!!!!!!!!!!!!!!!!!!!!!!!!!")
-        res.json({ msg: 'lambda event source created', status: 200 })
+        status.push({ msg: 'lambda event source created', status: 200 })
     } catch (error) {
-        console.log("FAILED TO SET UP LAMBDA EVENT MAPPING**********************", error)
-        res.json({ msg: 'lambda event source failed', status: 500 })
+        console.log("FAILED TO SET UP LAMBDA EVENT MAPPING**********************\n", error)
+        status.push({ msg: 'lambda event source failed', status: 500 }) // can't delete this once created, unless you change ARN
     }
+
+    return status
 }
 
 export default setLambda
