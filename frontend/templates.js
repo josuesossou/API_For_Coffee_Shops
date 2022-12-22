@@ -87,7 +87,8 @@ const setLiActive = (index) => {
 const setDashboard = async () => {
     setLiActive(pageIndexes.dashboard)
 
-    const isInited = JSON.parse(sessionStorage.getItem('isInited'))
+    const isInited = JSON.parse(sessionStorage.getItem('isInited')) || false
+    const isSetup = JSON.parse(sessionStorage.getItem('isSetup')) || false
 
     const template = `
         <header class="page-header">
@@ -100,7 +101,7 @@ const setDashboard = async () => {
                         <section class="panel panel-group">
                             <div id="accordion">
                                 
-                                ${isInited ? 
+                                ${isInited && isSetup? 
                                     `
                                         <button onpointerup="getShopsAndDisplay()">refresh</button>
                                         <div style="margin: .5em 0"><b>It will take up to 7 seconds for newly added shops to show up</b></div>
@@ -159,9 +160,9 @@ const getShopsAndDisplay = () => {
 
 const setSetting = () => {
     setLiActive(pageIndexes.setup)
-    const isInited = JSON.parse(sessionStorage.getItem('isInited'))
+    const isInited = JSON.parse(sessionStorage.getItem('isInited')) || false
     const setupData = JSON.parse(sessionStorage.getItem('setupData'))
-    const isSetup = JSON.parse(sessionStorage.getItem('isSetup'))
+    const isSetup = JSON.parse(sessionStorage.getItem('isSetup')) || false
 
     let IAMcontentHTML = isInited && setupData? (`
         <div class="col-sm-12" style="margin-bottom: 3em">
@@ -207,7 +208,7 @@ const setSetting = () => {
 
     const actions = isInited && isSetup ? [
         {
-            name: 'Clean Environment',
+            name: 'Tear Down Environment',
             type: 'danger',
             method: 'onpointerup="confirmDeletingServices()"',
             disabled: ''
@@ -257,7 +258,7 @@ const setSetting = () => {
     appElement.innerHTML = template
     
     if (isInited && setupData && !isSetup) {
-        waitTimetryAgain(10)
+        waitTimetryAgain(5)
     } 
 
     setPreviousCredentials()
@@ -266,6 +267,9 @@ const setSetting = () => {
 
 const setNewObject = () => {
     setLiActive(pageIndexes.addShop)
+
+    const isSetup = JSON.parse(sessionStorage.getItem('isSetup')) || false
+
     const contentHTML = `
     <form class="form-horizontal form-bordered" method="get">
         <div class="form-group">
@@ -294,11 +298,17 @@ const setNewObject = () => {
         </div>
     </form>
     `
-    const actions = [
+    const actions = isSetup? [
         {
             name: 'Add New Coffee Shop',
             method:`onpointerup="addCoffeeShop()"`, 
-            type: 'primary' 
+            type: 'primary',
+        }
+    ] : [
+        {
+            name: 'Please ',
+            method:`onpointerup="addCoffeeShop()"`, 
+            type: 'primary',
         }
     ]
     const content = getCollapseContent({
@@ -397,7 +407,7 @@ const setHelp = async () => {
     const contentRoleARN = getCollapseContent({ 
         contentHTML: contentRoleARNHTML, 
         actions,
-        contentName:'Get Role ARN', 
+        contentName:'Create Policy', 
         contentID:'helpPool',
         collapse: ''
     })

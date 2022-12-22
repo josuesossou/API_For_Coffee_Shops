@@ -2,5 +2,4 @@ backend/package-lock.json
 backend/node_modules
 backend/index.js
 backend/lambdaFunc
-lambda.js
-index.js
+example.js

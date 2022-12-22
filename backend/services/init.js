@@ -3,7 +3,7 @@ import { S3Client } from "@aws-sdk/client-s3";
 import { SQSClient  } from "@aws-sdk/client-sqs";
 import { DynamoDBClient } from "@aws-sdk/client-dynamodb";
 import { IAMClient } from "@aws-sdk/client-iam";
-import { setS3GlobalName } from "./helpers.js";
+import { setS3GlobalName, setSQSName } from "./helpers.js";
 
 export default class Init {
     constructor(iamCredentials, region) {
@@ -23,6 +23,7 @@ export default class Init {
 
     static inited = false
     static servicesCleaned = false
+    
     // dynamically set global variables
     static lambda
     static s3
@@ -97,90 +98,10 @@ export default class Init {
     }
 }
 
-
 export const initialise = (iamCredentials, region) => { 
     new Init(iamCredentials, region) 
 
     setS3GlobalName()
+    setSQSName()
     Init.inited = true
-
-    // const gotRole = await getIAMRole()
-    // const url = await isSQSExist()
-
-    // instance.setSqsURL(url)
-
-    // if (!gotRole) {
-    //     const roleArn = await createRole()
-    //     instance.setIsInited(roleArn)
-
-    // } else {
-    //     instance.setIsInited(gotRole)
-    //     res.json({ 
-    //         initStatus: Init.inited,
-    //         msg: 'Successfully Initialized' 
-    //     })
-    // }
 }
-
-// const getIAMRole = async () => {
-//     const param = {
-//         RoleName: Init.roleName /* required */
-//     }
-
-//     try {
-//         const data = await Init.iam.send(new GetRoleCommand(param));
-        
-//         console.log('!!!!!!!!! GOT ROLE ARN !!!!!!!!!!', data.Role.Arn)
-//         return data.Role.Arn
-//     } catch (error) {
-//         console.log('!!!!!!!!! FAILED TO GET ROLE ARN !!!!!!!!!!', error)
-//         return false
-//     }
-// }
-
-// const createRole = async () => {
-//     const rolePolicy = {
-//         "Version": "2012-10-17",
-//         "Statement": [
-//           {
-//             "Effect": "Allow",
-//             "Principal": {
-//                 "Service": [
-//                     "lambda.amazonaws.com",
-//                     "dynamodb.amazonaws.com"
-//                 ]
-//             },
-//             "Action": "sts:AssumeRole"
-//           }
-//         ]
-//     }
-//     const createRoleParam = {
-//         AssumeRolePolicyDocument: JSON.stringify(rolePolicy),
-//         Path: "/",
-//         RoleName: Init.roleName
-//     }
-//     const rolePoliciePermissions = [
-//         'arn:aws:iam::aws:policy/AmazonDynamoDBFullAccess',
-//         'arn:aws:iam::aws:policy/AmazonSQSFullAccess'
-//     ]
-
-//     try {
-//         const data = await Init.iam.send(new CreateRoleCommand(createRoleParam))
-
-//         for (let policy of rolePoliciePermissions) {
-//             const param = {
-//                 PolicyArn: policy,
-//                 RoleName: Init.roleName
-//             }
-
-//             await Init.iam.send(new AttachRolePolicyCommand(param))
-//         }
-
-//         await delay(10000)
-//         console.log('!!!!!!!!!! ROLE CREATED !!!!!!!!!!', data.Role.Arn)
-//         return data.Role.Arn
-//     } catch (error) {
-//         console.log('********** CREATING ROLE FAILED *******', error)
-//         return ''
-//     }
-// }

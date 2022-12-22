@@ -74,7 +74,6 @@ app.get('/get-shops', (req, res) => {
   getShopsData().then(data => {
     res.json({ data })
   })
-  
 })
 
 app.get('/', function (req, res) {

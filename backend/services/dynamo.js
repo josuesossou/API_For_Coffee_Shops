@@ -1,4 +1,4 @@
-import { GetItemCommand, PutItemCommand, ScanCommand } from "@aws-sdk/client-dynamodb";
+import { PutItemCommand, ScanCommand } from "@aws-sdk/client-dynamodb";
 import Init from "./init.js";
 export const sendData = async () => {
     const params = {
