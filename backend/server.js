@@ -1,10 +1,13 @@
 import express from 'express'
 import cors from 'cors'
+import path, { dirname } from 'path'
 import { initialise } from './services/init.js'
 import { sendData } from './services/sqs.js'
 import { checkInitStatus, cleanServicesBeforeExist } from './services/helpers.js'
 import { getShopsData } from './services/dynamo.js'
 import { clean, setup } from './services/actions.js'
+
+const __dirname = dirname('./')
 
 const app = express()
 const PORT = 3000
@@ -16,6 +19,7 @@ var corsOptions = {
 
 app.use(cors(corsOptions))
 app.use(express.json())  // for parsing application/json
+app.use('/static', express.static(path.join(__dirname, 'public'))),
 
 // app.get('/products/:id', function (req, res, next) {
 //   res.json({msg: 'This is CORS-enabled for all origins!'})
@@ -77,7 +81,7 @@ app.get('/get-shops', (req, res) => {
 })
 
 app.get('/', function (req, res) {
-  res.json({ msg: 'This is CORS-enabled for all origins!' })
+  res.redirect(__dirname + '/static')
 })
 
 app.listen(PORT, function () {
