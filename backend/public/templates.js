@@ -4,7 +4,8 @@ const pageIndexes = {
     dashboard: 0,
     addShop: 1,
     setup: 2,
-    help: 3
+    curlCmd: 3,
+    help: 4
 }
 
 const getHTMLTemplate = (templateName, content) => {
@@ -84,6 +85,7 @@ const setLiActive = (index) => {
 
 }
 
+//=================================GET COFFE SHOP PAGE============================================================//
 const setDashboard = async () => {
     setLiActive(pageIndexes.dashboard)
 
@@ -158,6 +160,7 @@ const getShopsAndDisplay = () => {
     }
 }
 
+//==========================================SETTINGS PAGE===================================================//
 const setSetting = () => {
     setLiActive(pageIndexes.setup)
     const isInited = JSON.parse(sessionStorage.getItem('isInited')) || false
@@ -200,7 +203,7 @@ const setSetting = () => {
             <div class="form-group">
                 <label class="col-md-3 control-label" for="inputIAMRegion">Region</label>
                 <div class="col-md-6">
-                    <input type="text" class="form-control" id="inputIAMRegion">
+                    <input type="text" class="form-control" id="inputIAMRegion" placeholder="us-east-1">
                 </div>
             </div>
         </form>
@@ -251,7 +254,7 @@ const setSetting = () => {
     })
     const content = IAMContent 
     const template = getHTMLTemplate(
-        'setup', 
+        'Setup', 
         content,
     )
 
@@ -264,7 +267,7 @@ const setSetting = () => {
     setPreviousCredentials()
 }
 
-
+//=====================================ADD NEW SHOP PAGE========================================================//
 const setNewObject = () => {
     setLiActive(pageIndexes.addShop)
 
@@ -326,9 +329,11 @@ const setNewObject = () => {
     appElement.innerHTML = template
 }
 
+//=====================================Helper Page========================================================//
+//// Help Page helpers
 const prereqSteps = [
     '<b>Step 1:</b> Follow "Get Access and Screte Key" instructions',
-    '<b>Step 2:</b> Follow "Get Role ARN" instructions',
+    '<b>Step 2:</b> Follow "Create Policy" instructions',
     '<b>Step 3:</b> Follow "Get Region" instructions',
 ]
 
@@ -338,20 +343,79 @@ const access_secret_key_Steps = [
     '<b>Step 3:</b> Type the user name for the new user',
     '<b>Step 4:</b> Select "Access key - Programmatic access" for the AWS credential type',
     '<b>Step 5:</b> Click "Next: Permissions" button',
-    '<b>Step 6:</b> Click on "Attach existing policies directly"',
-    '<b>Step 7:</b> Under Policy name, Select "AdministratorAccess"', 
+    // '<b>Step 6:</b> Click on "Attach existing policies directly"',
+    // '<b>Step 7:</b> Click on "Create policy" button', 
     '<b>Step 8:</b> Click "Next: Tags" button',
     '<b>Step 9:</b> Click "Next: Review" button',
     '<b>Step 10:</b> Click "Create user" button',
-    'You will now see your Access key ID and Secret access key. Copy and paste each respectively in the "Access Key" and "Secret Key" text feilds'
+    '<b>Step 11:</b> You will now see your Access key ID and Secret access key.',
+    '<b>Step 12:</b> Click on "Download .csv" button download the csv, put it in a folder that you can remember.'
 ]
 
 const initErrorCauses = [
     'need to complete',
 ]
 
-const rolearnHelpSteps = [
-    '<b>Step 1:</b> need to complete.',
+const createPolicyHelpSteps = [
+    '<b>Step 1:</b> Open the IAM console at <a href="https://us-east-1.console.aws.amazon.com/iamv2/home?region=us-east-1#/policies" target="_blank">https://console.aws.amazon.com/iam/policy</a>',
+    '<b>Step 2:</b> Click on "Create policy" button.',
+    '<b>Step 3:</b> Click on "JSON" tab.',
+    '<b>Step 4:</b> Remove the code in the box under the JSON tab.',
+    '<b>Step 5:</b> Copy the code below and paste it in the box.',
+    `<pre>{
+        "Version": "2012-10-17",
+        "Statement": [
+            {
+            "Effect": "Allow",
+            "Action": [
+                "dynamodb:Scan",
+                "dynamodb:ListTables",
+                "dynamodb:CreateTable",
+                "dynamodb:PutItem",
+                "dynamodb:DeleteTable",
+                "iam:GetRole",
+                "iam:CreateRole",
+                "iam:AttachRolePolicy",
+                "iam:DeleteRole",
+                "iam:DetachRolePolicy",
+                "iam:PassRole",
+                "lambda:GetFunction",
+                "lambda:ListEventSourceMappings",
+                "lambda:Create*",
+                "lambda:Delete*",
+                "s3:GetObject",
+                "s3:CreateBucket",
+                "s3:PutObject",
+                "s3:Delete*",
+                "sqs:GetQueueUrl",
+                "sqs:DeleteQueue",
+                "sqs:SendMessage",
+                "sqs:CreateQueue"
+            ],
+            "Resource": "*"
+            } 
+        ]
+    }</pre>
+    `,
+    '<b>Step 6:</b> Click on "Next: Tags".',
+    '<b>Step 7:</b> Click on "Next: Review".',
+    '<b>Step 8:</b> Type a name for the policy in the text box next to "Name*".',
+    '<b>Step 9:</b> Scroll down and Click on "Create Policy" button.',
+    '<b>Step 10:</b> Find and select the policy you have just created under "Policy Name" text.',
+    '<b>Step 11:</b> Click on "Actions" button.',
+    '<b>Step 12:</b> Click on "Attach" in the dropdown.',
+    '<b>Step 13:</b> Select the IAM User you have just created.',
+    '<b>Step 14:</b> Click "Attach policy" button.',
+    `Now you are all set. Copy the access and secret key from the csv file you have just 
+    created and paste them in their respective filds in the coffee shop app website.`,
+]
+
+const regionHelpSteps = [
+    '<b>Step 1:</b> Go to your dashboard in aws.',
+    `<b>Step 2:</b> Click on menu botton next to your name on the top right. 
+    This button usually have the text "Global". Click it even if it doesn't have that text.`,
+    `<b>Step 3:</b> In the list that shows up, copy one of the texts that are on the right. 
+    For example, us-east-1, us-east-2, or us-west-1 etc..`,
 ]
 
 const setHelp = async () => {
@@ -369,17 +433,17 @@ const setHelp = async () => {
             ${access_secret_key_Steps.map(text => '<li class="ml-sm-9">' + text + "</li>").join('')}
         </ul>
     `
-    const contentRoleARNHTML = `
-        <p><b> Follow These these instructions to create a role arn for the user you have just created</b> </p>
+    const contentPolicyHTML = `
+        <p><b> Follow These these instructions to create and add a policy to the user you have just created</b> </p>
         <ul class="widget-todo-list" id="object-list" onload="listObjects()">
-            ${rolearnHelpSteps.map(text => '<li class="ml-sm-9">' + text + "</li>").join('')}
+            ${createPolicyHelpSteps.map(text => '<li class="ml-sm-9">' + text + "</li>").join('')}
         </ul>
     `
 
     const contentRegionHTML = `
         <p><b> Follow These these instructions to get the region of your AWS account</b> </p>
         <ul class="widget-todo-list" id="object-list" onload="listObjects()">
-            ${rolearnHelpSteps.map(text => '<li class="ml-sm-9">' + text + "</li>").join('')}
+            ${regionHelpSteps.map(text => '<li class="ml-sm-9">' + text + "</li>").join('')}
         </ul>
     `
 
@@ -393,7 +457,7 @@ const setHelp = async () => {
     const contentPrerequisite = getCollapseContent({ 
         contentHTML: contentPrereqHTML, 
         actions,
-        contentName:'Prerequisite - Do this before initializing credentials on the setup Page', 
+        contentName:'Prerequisite - Do this before initializing credentials on the settings page', 
         contentID:'prereq',
         collapse: ''
     })
@@ -404,11 +468,11 @@ const setHelp = async () => {
         contentID:'helpIam',
         collapse: ''
     })
-    const contentRoleARN = getCollapseContent({ 
-        contentHTML: contentRoleARNHTML, 
+    const contentPolicy = getCollapseContent({ 
+        contentHTML: contentPolicyHTML, 
         actions,
         contentName:'Create Policy', 
-        contentID:'helpPool',
+        contentID:'helpPolicy',
         collapse: ''
     })
     const contentRegion = getCollapseContent({ 
@@ -425,8 +489,11 @@ const setHelp = async () => {
         contentID:'failedtoinit',
         collapse: ''
     })
-    const content = contentPrerequisite + "<br>" + contentIAM + "<br>" + 
-                    contentRoleARN + "<br>" + contentRegion + "<br>" + contentFailedToInit
+    const content = contentPrerequisite + "<br>" + 
+                    contentIAM + "<br>" + 
+                    contentPolicy + "<br>" + 
+                    contentRegion 
+                    // contentFailedToInit
 
     const template = getHTMLTemplate(
         'Help', 
@@ -434,6 +501,146 @@ const setHelp = async () => {
     )
 
     appElement.innerHTML = template
+}
+
+//===================================Curl Command Page======================================================//
+const setCurlCommand = async () => {
+    setLiActive(pageIndexes.curlCmd)
+
+    const contentPrereqHTML = `
+        <p>Make sure you have curl <a href="https://curl.se/download.html" target="_blank">installed</a></p>
+        <p>curl -d {} ${locationURL}/init</p>
+        <p>curl -d {} ${locationURL}/setup</p>
+    `
+    const getCommandHTML = `
+        <p>Copy the command and paste it in a terminal or command prompt</p>
+    `
+    const addShopCommandHTML = `
+        <p>Command Full Example</p>
+        <pre id="addCommand"> 
+            curl -d {
+                storeName: &lt;NAME OF THE STORE&gt;,
+                storeImage: &lt;IMAGE URL OF THE STORE&gt;,
+                storeRating: &lt;YOUR RATING OF THE STORE&gt;,
+                storeComment: &lt;YOUR COMMENT&gt;
+            } ${locationURL}/get-shops
+        </pre>
+        <p>Replace &lt;...&gt; with the actual content</p>
+
+    `
+
+    const deleteShopCommandHTML = `
+        <p>Try for yourself</p>
+        <p>create a curl command to tell the server to delete a shop</p>
+    `
+
+    // const contentFailedToInitHTML = `
+    //     <p><b>Here are some thing that can cause the setup to fail</b></p>
+    //     <ul class="widget-todo-list " id="object-list" onload="listObjects()">
+    //         ${initErrorCauses.map(text => '<li class="ml-sm-9">' + text + "</li>").join('')}
+    //     </ul>
+    // `
+
+    const contentPrerequisite = getCollapseContent({ 
+        contentHTML: contentPrereqHTML, 
+        actions: [],
+        contentName:'Run These Two Commands Before Proceeding', 
+        contentID:'prereq',
+        collapse: ''
+    })
+    const contentGetShop = getCollapseContent({ 
+        contentHTML: getCommandHTML, 
+        actions: [
+            {
+                name: '<i class="fa fa-copy"> </i> Copy Command',
+                method: `onpointerup="copyText('getCommand')"`,
+                type: 'primary',
+            },
+            // {
+            //     id: 'test',
+            //     name: 'Test',
+            //     method: 'onpointerup=""',
+            //     type: 'secondary',
+            // },
+        ],
+        contentName: `GET - Get Coffee Shops Command: <span id="getCommand"> curl ${locationURL}/get-shops</span>`, 
+        contentID:'get-command',
+        collapse: ''
+    })
+
+    const contentAddCommandHTML = getCollapseContent({ 
+        contentHTML: addShopCommandHTML, 
+        actions: [
+            {
+                name: '<i class="fa fa-copy"> </i> Copy Command',
+                method: `onpointerup="copyText('addCommand')"`,
+                type: 'primary',
+            },
+            // {
+            //     id: 'test',
+            //     name: 'Test',
+            //     method: 'onpointerup=""',
+            //     type: 'secondary',
+            // },
+        ],
+        contentName:`POST - Add Coffee Shop Command: curl -d &lt;YOUR DATA&gt; ${locationURL}/get-shops`,  
+        contentID:'add-command',
+        collapse: ''
+    })
+
+    const contentDeleteCommand = getCollapseContent({ 
+        contentHTML: deleteShopCommandHTML, 
+        actions:[
+            {
+                name: '<i class="fa fa-copy"> </i> Copy Command',
+                method: `onpointerup="copyText('deleteCommand')"`,
+                type: 'primary',
+            },
+            // {
+            //     id: 'test',
+            //     name: 'Test',
+            //     method: 'onpointerup=""',
+            //     type: 'secondary',
+            // },
+        ],
+        contentName: `DELETE - Add Coffee Shop Command: 
+                    <span id="deleteCommand">curl -d 
+                    &lt;SHOP_ID TO DELETE&gt; ${locationURL}/delete-coffee-shop</span>`, 
+        contentID:'delete-command',
+        collapse: ''
+    })
+
+    // const contentFailedToInit = getCollapseContent({ 
+    //     contentHTML: contentFailedToInitHTML, 
+    //     actions:[],
+    //     contentName:'Why Am I Getting An Error?', 
+    //     contentID:'failedtoinit',
+    //     collapse: ''
+    // })
+    const content = contentPrerequisite + "<br>" + 
+                    contentGetShop + "<br>" + 
+                    contentAddCommandHTML + "<br>" + 
+                    contentDeleteCommand
+                    // contentFailedToInit
+
+    const template = getHTMLTemplate(
+        'Help', 
+        content, 
+    )
+
+    appElement.innerHTML = template
+}
+
+/// Commands Page helper
+async function copyText (id) {
+    const ele = getElementById(id)
+
+    try {
+        await navigator.clipboard.writeText(ele.innerText)
+        showFlashMessage(`Command Copied! ${ele.innerText}`)
+    } catch (error) {
+        
+    }
 }
 
 

@@ -48,7 +48,7 @@ async function initialize({ region, accessKey, secretKey }) {
 
 async function checkInitStatus() {
   try {
-    const res = await fetch('http://localhost:3000/init-status')
+    const res = await fetch(`${locationURL}/init-status`)
     const data = await res.json()
   
     sessionStorage.setItem('isInited', JSON.stringify(data.initStatus))
@@ -113,7 +113,7 @@ async function setUp() {
   }
 
   try {
-    const res = await fetch('http://localhost:3000/setup', { method: 'POST' })
+    const res = await fetch(`${locationURL}/setup`, { method: 'POST' })
     const data = await res.json()
     isSetup = true
 
@@ -137,7 +137,7 @@ async function setUp() {
 
 async function getCoffeeShops() {
   try {
-    const res = await fetch('http://localhost:3000/get-shops')
+    const res = await fetch(`${locationURL}/get-shops`)
     const data = await res.json()
   
     return data.data.Items
@@ -164,7 +164,7 @@ async function addCoffeeShop() {
   storeImage = storeImage || ''
 
   try {
-    const res = await fetch('http://localhost:3000/addcoffeeshop', { 
+    const res = await fetch(`${locationURL}/add-coffee-shop`, { 
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
@@ -201,7 +201,7 @@ async function deleteAWSServices () {
   }
 
   try {
-    const res = await fetch('http://localhost:3000/cleanup', { method: 'POST' })
+    const res = await fetch(`${locationURL}/cleanup`, { method: 'POST' })
     const data = await res.json()
     let success = true
 

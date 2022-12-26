@@ -1,6 +1,5 @@
 backend/package-lock.json
 backend/node_modules
 backend/index.js
-backend/lambdaFunc
 example.js
 webpack

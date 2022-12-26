@@ -4,7 +4,7 @@ import path, { dirname } from 'path'
 import { initialise } from './services/init.js'
 import { sendData } from './services/sqs.js'
 import { checkInitStatus, cleanServicesBeforeExist } from './services/helpers.js'
-import { getShopsData } from './services/dynamo.js'
+import { deleteShopsData, getShopsData } from './services/dynamo.js'
 import { clean, setup } from './services/actions.js'
 
 const __dirname = dirname('./')
@@ -52,7 +52,7 @@ app.post('/cleanup', (req, res) => {
   })
 })
 
-app.post('/addcoffeeshop', (req, res) => {
+app.post('/add-coffee-shop', (req, res) => {
   let { storeImage, storeName, storeRating, storeComment } = req.body
   if (!storeImage) {
     storeImage = ''
@@ -64,7 +64,18 @@ app.post('/addcoffeeshop', (req, res) => {
     storeRating,
     storeComment
   }).then(name => {
-    res.json({ msg: `Uploaded ${name} to the queue` })
+    res.json({ msg: `Uploaded ${name} to the queue`, status: 200 })
+  }).catch(msg => {
+    res.json({ msg, status: 500 })
+  })
+})
+
+app.delete('/delete-coffee-shop', (req, res) => {
+  let { storeID } = req.body
+  
+  deleteShopsData(storeID)
+  .then(msg => {
+    res.json({ msg })
   }).catch(msg => {
     res.json({ msg })
   })
@@ -75,8 +86,12 @@ app.get('/init-status', (req, res) => {
 })
 
 app.get('/get-shops', (req, res) => {
-  getShopsData().then(data => {
+  getShopsData()
+  .then(data => {
     res.json({ data })
+  })
+  .catch(err => {
+    res.json(err)
   })
 })
 
