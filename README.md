@@ -5,9 +5,9 @@ This project is a web application built using NodeJS, JavaScript, HTML and CSS, 
 These instructions will get you a copy of the project up and running on your local machine for development and testing purposes.
 
 ### Prerequisites
-. NodeJS
-. npm
-. AWS account and IAM credentials
+. NodeJS <br>
+. npm <br>
+. AWS account and IAM credentials <br>
 
 ### Installation
 1. Clone the repository <br>
