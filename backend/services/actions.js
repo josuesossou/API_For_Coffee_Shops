@@ -1,7 +1,7 @@
 import { isDynamoExist, isEventMappingExist, isIAMRoleExist, isLambdaExist, isS3bucketExist, isSQSExist } from "./checkAWSServicesExist.js";
 import { createDynamoTable, createEventMapping, createLambdaFunction, createRole, createS3Bucket, createSQSQueue } from "./createAWSServices.js";
-import Init from "./init.js";
 import { deleteDynamoTable, deleteEventMapping, deleteLambdaFunction, deleteRole, deleteS3Bucket, deleteSQSQueue } from "./removeAWSServices.js";
+import Init from "./init.js";
 
 export async function setup () {
     const results = []

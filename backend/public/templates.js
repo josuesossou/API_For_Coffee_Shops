@@ -513,9 +513,11 @@ const setCurlCommand = async () => {
         <p>curl -d {} ${locationURL}/setup</p>
     `
     const getCommandHTML = `
+        <span id="getCommand">curl ${locationURL}/get-shops</span>
         <p>Copy the command and paste it in a terminal or command prompt</p>
     `
     const addShopCommandHTML = `
+        <p>curl -d &lt;YOUR DATA&gt; ${locationURL}/get-shops</p>
         <p>Command Full Example</p>
         <pre id="addCommand"> 
             curl -d {
@@ -525,12 +527,14 @@ const setCurlCommand = async () => {
                 storeComment: &lt;YOUR COMMENT&gt;
             } ${locationURL}/get-shops
         </pre>
-        <p>Replace &lt;...&gt; with the actual content</p>
-
+        <p>Make sure to remove &lt; and &gt;</p>
     `
 
     const deleteShopCommandHTML = `
-        <p>Try for yourself</p>
+        <p>Try for yourself, hint</p>
+        <span id="deleteCommand">
+            curl -d &lt;SHOP_ID TO DELETE&gt; ${locationURL}/delete-coffee-shop
+        </span>
         <p>create a curl command to tell the server to delete a shop</p>
     `
 
@@ -556,14 +560,8 @@ const setCurlCommand = async () => {
                 method: `onpointerup="copyText('getCommand')"`,
                 type: 'primary',
             },
-            // {
-            //     id: 'test',
-            //     name: 'Test',
-            //     method: 'onpointerup=""',
-            //     type: 'secondary',
-            // },
         ],
-        contentName: `GET - Get Coffee Shops Command: <span id="getCommand"> curl ${locationURL}/get-shops</span>`, 
+        contentName: `GET - Get Coffee Shops Command`, 
         contentID:'get-command',
         collapse: ''
     })
@@ -576,14 +574,8 @@ const setCurlCommand = async () => {
                 method: `onpointerup="copyText('addCommand')"`,
                 type: 'primary',
             },
-            // {
-            //     id: 'test',
-            //     name: 'Test',
-            //     method: 'onpointerup=""',
-            //     type: 'secondary',
-            // },
         ],
-        contentName:`POST - Add Coffee Shop Command: curl -d &lt;YOUR DATA&gt; ${locationURL}/get-shops`,  
+        contentName:`POST - Add Coffee Shop Command`,  
         contentID:'add-command',
         collapse: ''
     })
@@ -603,9 +595,7 @@ const setCurlCommand = async () => {
             //     type: 'secondary',
             // },
         ],
-        contentName: `DELETE - Add Coffee Shop Command: 
-                    <span id="deleteCommand">curl -d 
-                    &lt;SHOP_ID TO DELETE&gt; ${locationURL}/delete-coffee-shop</span>`, 
+        contentName: `DELETE - Add Coffee Shop Command`, 
         contentID:'delete-command',
         collapse: ''
     })
@@ -624,7 +614,7 @@ const setCurlCommand = async () => {
                     // contentFailedToInit
 
     const template = getHTMLTemplate(
-        'Help', 
+        'Curl Commands', 
         content, 
     )
 

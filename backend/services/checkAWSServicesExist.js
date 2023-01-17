@@ -64,7 +64,6 @@ export const isEventMappingExist = async () => {
         const eventMappings = data.EventSourceMappings
         let uuid = false
 
-        console.log('Event ARN', Init.eventArn)
         for (let event of eventMappings) {
             if (event.EventSourceArn === Init.eventArn) {
                 uuid = event.UUID

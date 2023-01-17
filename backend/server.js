@@ -21,9 +21,7 @@ app.use(cors(corsOptions))
 app.use(express.json())  // for parsing application/json
 app.use('/static', express.static(path.join(__dirname, 'public'))),
 
-// app.get('/products/:id', function (req, res, next) {
-//   res.json({msg: 'This is CORS-enabled for all origins!'})
-// })
+
 
 app.post('/init', (req, res) => {
   const { region, credential } = req.body
