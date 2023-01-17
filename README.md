@@ -13,10 +13,10 @@ These instructions will get you a copy of the project up and running on your loc
 ### Installation
 1. Clone the repository <br>
 ``` git clone https://github.com/josuesossou/API_For_Coffee_Shops.git```<br>
-2. Install the dependencies<br>
-``` npm install ```<br>
-3. Change into the correct directory<br>
+2. Change into the correct directory<br>
 ```cd backend``` <br>
+3. Install the dependencies<br>
+``` npm install ```<br>
 4. Build the docker image<br>
 ```npm run build```<br>
 5. Start the server<br>
