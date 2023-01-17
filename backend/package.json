@@ -4,8 +4,9 @@
   "description": "Backend for accessing AWS services",
   "main": "server.js",
   "scripts": {
-    "build": "webpack",
-    "test": "test"
+    "build": "docker build -t coffeeshopawsapp .",
+    "test": "test",
+    "start": "docker run -p 3000:3000 coffeeshopawsapp"
   },
   "type": "module",
   "author": "Josue Sossou",

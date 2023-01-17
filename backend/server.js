@@ -10,7 +10,7 @@ import { clean, setup } from './services/actions.js'
 const __dirname = dirname('./')
 
 const app = express()
-const PORT = 3000
+const PORT = process.env.NODE_ENV === 'production'? 80 : 3000
 
 var corsOptions = {
   origin: '*',
@@ -98,7 +98,7 @@ app.get('/', function (req, res) {
 })
 
 app.listen(PORT, function () {
-  console.log('CORS-enabled web server listening on port 3000')
+  console.log('CORS-enabled web server listening on port ' + PORT)
   runBeforeExiting()
 })
 
