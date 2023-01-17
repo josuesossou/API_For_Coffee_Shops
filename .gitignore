@@ -3,3 +3,4 @@ backend/node_modules
 backend/index.js
 example.js
 webpack
+frontend

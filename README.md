@@ -10,11 +10,11 @@ These instructions will get you a copy of the project up and running on your loc
 . AWS account and IAM credentials
 
 ### Installation
-1. Clone the repository
+1. Clone the repository <br>
 ``` git clone https://github.com/josuesossou/API_For_Coffee_Shops.git```
-2. Install the dependencies
+2. Install the dependencies<br>
 ``` npm install ```
-3. Start the server
+3. Start the server<br>
 ```npm start```
 4. Open the settings page of the app and provide your IAM credentials and the region.
 5. Send a post request to the '/setup' endpoint to create the necessary AWS services in the cloud. This includes uploading a Lambda function zip file to an S3 bucket, creating an SQS queue, and a DynamoDB table. An event source mapping is also created to map the SQS queue to the Lambda function.
