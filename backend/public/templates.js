@@ -340,15 +340,15 @@ const prereqSteps = [
 const access_secret_key_Steps = [
     '<b>Step 1:</b> Sign in to the AWS Management Console and open the IAM console at <a href="https://us-east-1.console.aws.amazon.com/iamv2/home?region=us-east-1#/users" target="_blank">https://console.aws.amazon.com/iam/users</a>',
     '<b>Step 2:</b> Click on the "Add users" button',
-    '<b>Step 3:</b> Type the user name for the new user',
+    '<b>Step 3:</b> Enter the name for the new user',
     '<b>Step 4:</b> Click "Next" button',
     '<b>Step 5:</b> Click "Next" button',
     '<b>Step 6:</b> Click on "Create user"',
     '<b>Step 7:</b> Follow the instructions for Creating a Policy then come back for step 8',
     '===== Continue After Creating a Policy ========', 
-    '<b>Step 8:</b> Click on "Users"',
-    '<b>Step 9:</b> Click on the User you have just created',
-    '<b>Step 10:</b> In the tab navigation, select "Security credentials"',
+    '<b>Step 8:</b> Click on "Users" in the sidebar menu',
+    '<b>Step 9:</b> Click on the User you have just created. (Not the checkbox, the actual username)',
+    '<b>Step 10:</b> In the tab navigation, select "Security credentials" tab',
     '<b>Step 11:</b> Scroll down until you see Access keys',
     '<b>Step 12</b> Click on "Create access key" button',
     '<b>Step 13</b> Select "Third-party service"',
@@ -357,6 +357,7 @@ const access_secret_key_Steps = [
     '<b>Step 16</b> Click "Create access key" button',
     '<b>Step 17:</b> Click on "Download .csv" button download the csv, save the file in a folder that you can remember.',
     '<b>Step 18</b> Click "Done"',
+    '<b>Go to the Settings page from the localsost application, and enter the Access and Secret keys</b>'
 ]
 
 const initErrorCauses = [
@@ -412,7 +413,7 @@ const createPolicyHelpSteps = [
     '<b>Step 11:</b> Click on "Attach" in the dropdown.',
     '<b>Step 12:</b> Select the IAM User you have just created.',
     '<b>Step 13:</b> Click "Attach policy" button.',
-    '<b>Go back to the Get Access and Screte Key on the help page and follow step 8 to end</b>',
+    '<b>Go back to the "Get Access and Secret Key" on the help page and follow step 8 to end</b>',
 ]
 
 const regionHelpSteps = [
