@@ -9,7 +9,7 @@ export const setS3GlobalName = () => {
     Init.bucketName = 'app-bucket-' + genUUID
 }
 export const setSQSName = () => {
-    const genUUID = 'Yellowtail-proj'
+    const genUUID = randomUUID().toLocaleLowerCase()
     Init.sqsName = 'app-sqs-' + genUUID
 }
 export const cleanServicesBeforeExist = async () => {
