@@ -341,15 +341,22 @@ const access_secret_key_Steps = [
     '<b>Step 1:</b> Sign in to the AWS Management Console and open the IAM console at <a href="https://us-east-1.console.aws.amazon.com/iamv2/home?region=us-east-1#/users" target="_blank">https://console.aws.amazon.com/iam/users</a>',
     '<b>Step 2:</b> Click on the "Add users" button',
     '<b>Step 3:</b> Type the user name for the new user',
-    '<b>Step 4:</b> Select "Access key - Programmatic access" for the AWS credential type',
-    '<b>Step 5:</b> Click "Next: Permissions" button',
-    // '<b>Step 6:</b> Click on "Attach existing policies directly"',
-    // '<b>Step 7:</b> Click on "Create policy" button', 
-    '<b>Step 8:</b> Click "Next: Tags" button',
-    '<b>Step 9:</b> Click "Next: Review" button',
-    '<b>Step 10:</b> Click "Create user" button',
-    '<b>Step 11:</b> You will now see your Access key ID and Secret access key.',
-    '<b>Step 12:</b> Click on "Download .csv" button download the csv, put it in a folder that you can remember.'
+    '<b>Step 4:</b> Click "Next" button',
+    '<b>Step 5:</b> Click "Next" button',
+    '<b>Step 6:</b> Click on "Create user"',
+    '<b>Step 7:</b> Follow the instructions for Creating a Policy then come back for step 8',
+    '===== Continue After Creating a Policy ========', 
+    '<b>Step 8:</b> Click on "Users"',
+    '<b>Step 9:</b> Click on the User you have just created',
+    '<b>Step 10:</b> In the tab navigation, select "Security credentials"',
+    '<b>Step 11:</b> Scroll down until you see Access keys',
+    '<b>Step 12</b> Click on "Create access key" button',
+    '<b>Step 13</b> Select "Third-party service"',
+    '<b>Step 14</b> Click the "I understand ..." checkbox',
+    '<b>Step 15</b> Click "Next"',
+    '<b>Step 16</b> Click "Create access key" button',
+    '<b>Step 17:</b> Click on "Download .csv" button download the csv, save the file in a folder that you can remember.',
+    '<b>Step 18</b> Click "Done"',
 ]
 
 const initErrorCauses = [
@@ -360,8 +367,8 @@ const createPolicyHelpSteps = [
     '<b>Step 1:</b> Open the IAM console at <a href="https://us-east-1.console.aws.amazon.com/iamv2/home?region=us-east-1#/policies" target="_blank">https://console.aws.amazon.com/iam/policy</a>',
     '<b>Step 2:</b> Click on "Create policy" button.',
     '<b>Step 3:</b> Click on "JSON" tab.',
-    '<b>Step 4:</b> Remove the code in the box under the JSON tab.',
-    '<b>Step 5:</b> Copy the code below and paste it in the box.',
+    '<b>Step 4:</b> Delete the code in the Policy editor box.',
+    '<b>Step 5:</b> Copy the code below and paste it in the Policy editor box.',
     `<pre>{
         "Version": "2012-10-17",
         "Statement": [
@@ -397,17 +404,15 @@ const createPolicyHelpSteps = [
         ]
     }</pre>
     `,
-    '<b>Step 6:</b> Click on "Next: Tags".',
-    '<b>Step 7:</b> Click on "Next: Review".',
-    '<b>Step 8:</b> Type a name for the policy in the text box next to "Name*".',
-    '<b>Step 9:</b> Scroll down and Click on "Create Policy" button.',
-    '<b>Step 10:</b> Find and select the policy you have just created under "Policy Name" text.',
-    '<b>Step 11:</b> Click on "Actions" button.',
-    '<b>Step 12:</b> Click on "Attach" in the dropdown.',
-    '<b>Step 13:</b> Select the IAM User you have just created.',
-    '<b>Step 14:</b> Click "Attach policy" button.',
-    `Now you are all set. Copy the access and secret key from the csv file you have just 
-    created and paste them in their respective filds in the coffee shop app website.`,
+    '<b>Step 6:</b> Click on "Next" button.',
+    '<b>Step 7:</b> Enter a policy name (this name can be anything as long as it is not being use by another policy), you can also add a description if you want to',
+    '<b>Step 8:</b> Scroll down and Click on "Create Policy" button. The page should refresh and you should see the policies page',
+    '<b>Step 9:</b> Find and Select the policy you have just created under "Policy Name" text.',
+    '<b>Step 10:</b> Click on "Actions" button.',
+    '<b>Step 11:</b> Click on "Attach" in the dropdown.',
+    '<b>Step 12:</b> Select the IAM User you have just created.',
+    '<b>Step 13:</b> Click "Attach policy" button.',
+    '<b>Go back to the Get Access and Screte Key on the help page and follow step 8 to end</b>',
 ]
 
 const regionHelpSteps = [
