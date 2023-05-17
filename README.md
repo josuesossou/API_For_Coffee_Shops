@@ -21,8 +21,8 @@ Steps To Start Running Coffee Shop API
 6. Download Docker from this website: Download Docker Desktop | Docker, and complete the installation.
 7. Open Docker after it’s installed and it should start running automatically
 8. Go to the root of the project folder (API_For_Coffee_Shops-main/backend) in your terminal or command prompt. Run these two commands:
-    docker build -t backend .
-    docker run -p 3000:3000 backend
+    a. docker build -t backend .
+    b. docker run -p 3000:3000 backend
 9. Open your browser and go to localhost:3000
 10. Click on the Help tab on the left to follow additional steps if not done already
 
