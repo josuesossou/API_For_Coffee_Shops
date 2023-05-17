@@ -5,7 +5,7 @@ import { clean } from "./actions.js";
 export const checkInitStatus = () => Init.inited
 export const delay = (ms) => new Promise(res => setTimeout(res, ms))
 export const setS3GlobalName = () => {
-    const genUUID = 'yellowtail-proj'
+    const genUUID = randomUUID().toLocaleLowerCase()
     Init.bucketName = 'app-bucket-' + genUUID
 }
 export const setSQSName = () => {
